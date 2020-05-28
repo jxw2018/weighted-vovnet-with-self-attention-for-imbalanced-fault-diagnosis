@@ -83,6 +83,38 @@ def main():
     ]
 
     # VOVnet
+    # config_pre = [
+    #     ('conv1d', [16, 1, 25, 1, 12, 1]),
+    #     ('bn', [16]),
+    #     ('relu', [True]),
+    #     ('conv1d', [16, 16, 25, 1, 12, 2]),
+    #     ('bn', [16]),
+    #     ('relu', [True]),
+    #     ('conv1d', [16, 16, 25, 1, 12, 3]),
+    #     ('concat', []),
+    #     ('bn', [48]),
+    #     ('relu', [True]),
+    #     ('conv1d', [16, 48, 25, 1, 12, 0]),
+    #     ('max_pool1d', [2, 1]),
+    #     ('bn', [16]),
+    #     ('relu', [True]),
+    #     ('conv1d', [16, 16, 25, 1, 12, 2]),
+    #     ('bn', [16]),
+    #     ('relu', [True]),
+    #     ('conv1d', [16, 16, 25, 1, 12, 3]),
+    #     ('concat', []),
+    #     ('bn', [48]),
+    #     ('relu', [True]),
+    #     ('conv1d', [16, 48, 25, 1, 12, 0]),
+    #     ('max_pool1d', [2, 0]),
+    #     ('flatten', []),
+    #     ('linear', [100, 4800]),
+    #     ('linear', [args.pre_class, 100])
+    # ]
+
+    #pre_train
+
+    #vovnet with self attention
     config_pre = [
         ('conv1d', [16, 1, 25, 1, 12, 1]),
         ('bn', [16]),
@@ -92,6 +124,7 @@ def main():
         ('relu', [True]),
         ('conv1d', [16, 16, 25, 1, 12, 3]),
         ('concat', []),
+        ('SE', [1, 24, 48, True, 48, 24, True]),
         ('bn', [48]),
         ('relu', [True]),
         ('conv1d', [16, 48, 25, 1, 12, 0]),
@@ -103,6 +136,7 @@ def main():
         ('relu', [True]),
         ('conv1d', [16, 16, 25, 1, 12, 3]),
         ('concat', []),
+        ('SE', [1, 24, 48, True, 48, 24, True]),
         ('bn', [48]),
         ('relu', [True]),
         ('conv1d', [16, 48, 25, 1, 12, 0]),
@@ -112,7 +146,6 @@ def main():
         ('linear', [args.pre_class, 100])
     ]
 
-    #pre_train
     pre_model = pre_train(args, config_pre)
     pre_data = sio.loadmat(r'L:\桌面文件\假期资料\小样本学习问题\MAML元学习不平衡分类pytorch实现\训练数据集\bearing_cwru_train.mat')
     pre_model(pre_data)

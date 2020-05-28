@@ -81,6 +81,17 @@ class learn_model(nn.Module):
                 running_mean = nn.Parameter(torch.zeros(param[0]), requires_grad=False)
                 running_var = nn.Parameter(torch.ones(param[0]), requires_grad=False)
                 self.vars_bn.extend([running_mean, running_var])
+
+            elif name is 'SE':
+                w1 = nn.Parameter(torch.ones(*param[1:3]))
+                torch.nn.init.kaiming_normal_(w1)
+                self.vars.append(w1)
+                self.vars.append(nn.Parameter(torch.zeros(param[1])))
+
+                w2 = nn.Parameter(torch.ones(*param[4:6]))
+                torch.nn.init.kaiming_normal_(w2)
+                self.vars.append(w2)
+                self.vars.append(nn.Parameter(torch.zeros(param[4])))
                 
             elif name in ['tanh', 'relu', 'upsample', 'avg_pool1d', 'max_pool1d',
                           'flatten', 'reshape', 'leakyrelu', 'sigmoid', 'concat']:
@@ -134,6 +145,19 @@ class learn_model(nn.Module):
                 x = F.max_pool1d(x, param[0])
                 if param[1] == 1:
                     x1 = x
+
+            elif name is 'SE':
+                x_se = F.adaptive_max_pool1d(x, param[0])
+                w1, b1 = vars[idx], vars[idx + 1]
+                x_se = F.linear(x_se, w1, b1)
+                idx += 2
+                x_se = F.relu(x_se, inplace=param[3])
+                w2, b2 = vars[idx], vars[idx + 1]
+                x_se = F.linear(x_se, w2, b2)
+                idx += 2
+                x_se = F.sigmoid(x_se, inplace=param[6])
+                x = x * x_se.expand_as(x)
+
                 
             else:
                 raise NotImplementedError
