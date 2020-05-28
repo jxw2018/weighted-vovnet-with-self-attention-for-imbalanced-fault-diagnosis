@@ -148,6 +148,7 @@ class learn_model(nn.Module):
 
             elif name is 'SE':
                 x_se = F.adaptive_max_pool1d(x, param[0])
+                x_se = x_se.view(x_se.size(0), -1)
                 w1, b1 = vars[idx], vars[idx + 1]
                 x_se = F.linear(x_se, w1, b1)
                 idx += 2
@@ -155,8 +156,9 @@ class learn_model(nn.Module):
                 w2, b2 = vars[idx], vars[idx + 1]
                 x_se = F.linear(x_se, w2, b2)
                 idx += 2
-                x_se = F.sigmoid(x_se, inplace=param[6])
-                x = x * x_se.expand_as(x)
+                x_se = F.sigmoid(x_se).unsqueeze(2)
+                x_se = x_se.expand_as(x)
+                x = x * x_se
 
                 
             else:
